@@ -43,15 +43,15 @@ class Camera {
 
   @override
   String toString() {
-    var aboutCamera = "$megapixels мегапикселей, $lenses линзы";
+    final aboutCamera = "$megapixels мегапикселей, $lenses линзы";
     return aboutCamera;
   }
 }
 
 void main() {
-  final Camera camera45 = Camera(45, 3);
-  final Camera camera50 = Camera(50, 3);
-  Phone phoneS10E = Phone.samsung(
+  final camera45 = Camera(45, 3);
+  final camera50 = Camera(50, 3);
+  final phoneS10E = Phone.samsung(
       model: 's10e',
       display: 6.7,
       battery: '4441 мАч',
