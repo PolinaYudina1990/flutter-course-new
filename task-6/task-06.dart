@@ -1,16 +1,16 @@
 class Product {
-  int id;
-  String category;
-  String name;
-  double price;
-  int quantity;
+  final int id;
+  final String category;
+  final String name;
+  final double price;
+  final int quantity;
 
   @override
   String toString() {
     return '$id $category $name $price рублей $quantity шт';
   }
 
-  Product({
+  const Product({
     required this.id,
     required this.category,
     required this.name,
@@ -24,22 +24,22 @@ abstract interface class Filter<T> {
 }
 
 class FilterCategory implements Filter<String> {
-  String category;
-  FilterCategory(this.category);
+  final String category;
+  const FilterCategory(this.category);
   @override
   bool apply(Product product) => product.category == category;
 }
 
 class FilterPrice implements Filter<double> {
-  double price;
-  FilterPrice(this.price);
+  final double price;
+  const FilterPrice(this.price);
   @override
   bool apply(Product product) => product.price == price;
 }
 
 class FilterQuantity implements Filter<int> {
-  int quantity;
-  FilterQuantity(this.quantity);
+  final int quantity;
+  const FilterQuantity(this.quantity);
   @override
   bool apply(Product product) => product.quantity < quantity;
 }
