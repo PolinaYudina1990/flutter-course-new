@@ -61,7 +61,6 @@ void main() {
 List<Product> addList = [];
 List<Product> applyFilter(List<Product> products, Filter filter) {
   addList.clear();
-  addList.clear();
   for (var product in products) {
     if (filter.apply(product)) {
       addList.add(product);
