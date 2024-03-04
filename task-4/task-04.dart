@@ -1,38 +1,91 @@
-typedef Strategy = double Function(List<String>, List<String>);
+class Product {
+  int id;
+  String category;
+  String name;
+  double price;
+  int quantity;
 
-class PokerPlayer {
-  /// Список текущих карт в руке у игрока
-  List<String> _currentHand = ['King of clubs', 'Nine of hearts'];
+  @override
+  String toString() {
+    return '$id $category $name $price рублей $quantity шт';
+  }
 
-  /// Субъективная оценка выигрыша
-  double _surenessInWin = 0;
+  Product({
+    required this.id,
+    required this.category,
+    required this.name,
+    required this.price,
+    required this.quantity,
+  });
+}
 
-  /// Вычислить шансы на выигрыш
-  void calculateProbabilities(
-    List<String> cardOnDesk,
+abstract interface class Filter<T> {
+  bool apply(Product product);
+}
 
-    /// Это часть первого задания. [Strategy] пока не сущестивует.
-    ///
-    /// Опишите его.
-    Strategy strategy,
-  ) =>
-      _surenessInWin = strategy(cardOnDesk, _currentHand);
+class FilterCategory implements Filter<String> {
+  String category;
+  FilterCategory(this.category);
+  @override
+  bool apply(Product product) => product.category != category;
+}
+
+class FilterPrice implements Filter<double> {
+  double price;
+  FilterPrice(this.price);
+  @override
+  bool apply(Product product) => product.price < price;
+}
+
+class FilterQuantity implements Filter<int> {
+  int quantity;
+  FilterQuantity(this.quantity);
+  @override
+  bool apply(Product product) => product.quantity < quantity;
 }
 
 void main() {
-  final opponent = PokerPlayer();
-
-  /// Это часть первого задания. [Strategy] пока не сущестивует.
-  ///
-  /// Опишите его.
-  final Strategy fakeStrategy = (p0, p1) {
-    print('Карты на столе: $p0');
-    print('Карты игрока: $p1');
-    return 1;
-  };
-
-  opponent.calculateProbabilities(
-    ['Nine of diamonds', 'king of hearts'],
-    fakeStrategy,
+  print(
+    applyFilter(FilterCategory('хлеб')),
   );
+
+//   print(
+//     applyFilter(FilterPrice(500)),
+//   );
+
+//   print(
+//     applyFilter(FilterQuantity(99)),
+//   );
 }
+
+List<Product> applyFilter(Filter filter) {
+  final products = parseArticles(articles);
+  return products..removeWhere((element) => filter.apply(element));
+}
+
+List<Product> parseArticles(String articles) {
+  final tempList = articles.split('\n');
+  tempList.removeWhere((element) => element == '');
+
+  final result = tempList.map((rawProduct) {
+    final fields = rawProduct.split(',');
+    return Product(
+      id: int.parse(fields[0]),
+      category: fields[1],
+      name: fields[2],
+      price: double.parse(fields[3]),
+      quantity: int.parse(fields[4]),
+    );
+  }).toList();
+
+  return result;
+}
+
+final articles = '''
+1,хлеб,Бородинский,500,5
+2,хлеб,Белый,200,15
+3,молоко,Полосатый кот,50,53
+4,молоко,Коровка,50,53
+5,вода,Апельсин,25,100
+6,вода,Бородинский,500,5
+''';
