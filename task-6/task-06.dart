@@ -1,16 +1,16 @@
 class Product {
-  final int id;
-  final String category;
-  final String name;
-  final double price;
-  final int quantity;
+  int id;
+  String category;
+  String name;
+  double price;
+  int quantity;
 
   @override
   String toString() {
     return '$id $category $name $price рублей $quantity шт';
   }
 
-  const Product({
+  Product({
     required this.id,
     required this.category,
     required this.name,
@@ -24,43 +24,42 @@ abstract interface class Filter<T> {
 }
 
 class FilterCategory implements Filter<String> {
-  final String category;
-  const FilterCategory(this.category);
+  String category;
+  FilterCategory(this.category);
   @override
   bool apply(Product product) => product.category == category;
 }
 
 class FilterPrice implements Filter<double> {
-  final double price;
-  const FilterPrice(this.price);
+  double price;
+  FilterPrice(this.price);
   @override
   bool apply(Product product) => product.price == price;
 }
 
 class FilterQuantity implements Filter<int> {
-  final int quantity;
-  const FilterQuantity(this.quantity);
+  int quantity;
+  FilterQuantity(this.quantity);
   @override
   bool apply(Product product) => product.quantity < quantity;
 }
 
 void main() {
   print(
-    applyFilter(FilterCategory('хлеб')),
+    applyFilter(articlesConvert(articles), FilterCategory('хлеб')),
   );
 
   print(
-    applyFilter(FilterPrice(500)),
+    applyFilter(articlesConvert(articles), FilterPrice(500)),
   );
 
   print(
-    applyFilter(FilterQuantity(99)),
+    applyFilter(articlesConvert(articles), FilterQuantity(99)),
   );
 }
 
 List<Product> addList = [];
-List<Product> applyFilter(Filter filter) {
-  final products = articlesConvert(articles);
+List<Product> applyFilter(List<Product> products, Filter filter) {
   addList.clear();
   for (var product in products) {
     if (filter.apply(product)) {
