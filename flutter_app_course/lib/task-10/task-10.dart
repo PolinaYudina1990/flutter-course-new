@@ -47,7 +47,14 @@ class _MyProfileState extends State<MyProfile> {
                   child: Container(
                     padding: const EdgeInsets.only(
                         top: 20, bottom: 20, right: 20, left: 20),
-                    child: const Text('Юдина Полина Руслановна'),
+                    child: const Text(
+                      'Юдина Полина Руслановна',
+                      style: TextStyle(
+                        fontFamily: 'Kavivanar',
+                        fontStyle: FontStyle.italic,
+                        fontSize: 14.0,
+                      ),
+                    ),
                   ),
                 ),
                 Positioned(
@@ -84,8 +91,14 @@ class _MyProfileState extends State<MyProfile> {
                   child: Container(
                     padding: const EdgeInsets.only(
                         top: 20, bottom: 20, right: 20, left: 20),
-                    child:
-                        const Text('Экономист, переучиваюсь на программиста'),
+                    child: const Text(
+                      'Экономист, переучиваюсь на программиста',
+                      style: TextStyle(
+                        fontFamily: 'Kavivanar',
+                        fontStyle: FontStyle.italic,
+                        fontSize: 14.0,
+                      ),
+                    ),
                   ),
                 ),
                 Positioned(
@@ -122,7 +135,30 @@ class _MyProfileState extends State<MyProfile> {
                   child: Container(
                     padding: const EdgeInsets.only(
                         top: 20, bottom: 20, right: 20, left: 20),
-                    child: const Text('всякие поделки своими руками'),
+                    child: Row(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        const Text(
+                          'Всякие поделки своими руками',
+                          style: TextStyle(
+                            fontFamily: 'Kavivanar',
+                            fontStyle: FontStyle.italic,
+                            fontSize: 14.0,
+                          ),
+                        ),
+                        const SizedBox(
+                          width: 10,
+                        ),
+                        SizedBox(
+                          height: 25,
+                          width: 25,
+                          child: Image.asset(
+                            'assets/icons/hand-made.png',
+                            height: 25,
+                          ),
+                        ),
+                      ],
+                    ),
                   ),
                 ),
                 Positioned(
@@ -159,7 +195,14 @@ class _MyProfileState extends State<MyProfile> {
                   child: Container(
                     padding: const EdgeInsets.only(
                         top: 20, bottom: 20, right: 20, left: 20),
-                    child: const Text('Есть один проектик)'),
+                    child: const Text(
+                      'Есть один проектик)',
+                      style: TextStyle(
+                        fontFamily: 'Kavivanar',
+                        fontStyle: FontStyle.italic,
+                        fontSize: 14.0,
+                      ),
+                    ),
                   ),
                 ),
                 Positioned(
