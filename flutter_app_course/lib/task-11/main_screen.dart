@@ -14,11 +14,11 @@ SortList _sortList = SortList.none;
 enum SortList {
   none,
   sortTitle,
-  sortTitleReverced,
+  sortTitleReversed,
   sortPrice,
-  sortPriceReverced,
+  sortPriceReversed,
   sortType,
-  sortTypeReverced
+  sortTypeReversed
 }
 
 class MainScreen extends StatefulWidget {
@@ -28,32 +28,25 @@ class MainScreen extends StatefulWidget {
   State<MainScreen> createState() => _MainScreenState();
 }
 
-bool isLoading = true;
-
 class _MainScreenState extends State<MainScreen>
     with SingleTickerProviderStateMixin {
-  int _currentIndex = 3;
+  var _currentIndex = 3;
+  var _isLoading = true;
 
   final _controller = PageController(
     initialPage: 3,
   );
 
-  loadData() {
+  _loadData() {
     setState(() {
-      isLoading = false;
+      _isLoading = false;
     });
   }
 
   @override
   initState() {
-    loadData();
+    _loadData();
     super.initState();
-  }
-
-  setSelectedRadioTile(SortList val) {
-    setState(() {
-      _sortList = val;
-    });
   }
 
   @override
@@ -65,7 +58,7 @@ class _MainScreenState extends State<MainScreen>
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      body: isLoading
+      body: _isLoading
           ? const Stack(
               children: [
                 Opacity(
@@ -127,11 +120,6 @@ class _MainScreenState extends State<MainScreen>
       ),
     );
   }
-}
-
-void totalCosts() {
-  var sumCosts = 0;
-  dataForStudents.forEach((e) => sumCosts += e.price);
 }
 
 class CatalogScreen extends StatelessWidget {
@@ -206,66 +194,70 @@ class _PersonalScreenState extends State<PersonalScreen> {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            rowWithFilter(context),
-            listProducts(context),
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                const Text(
+                  AppStrings.rowList,
+                  style: AppTypography.fontForTitle,
+                ),
+                Container(
+                  width: 32,
+                  height: 32,
+                  decoration: const BoxDecoration(
+                    color: AppColors.grey,
+                    borderRadius: BorderRadius.all(
+                      Radius.circular(6),
+                    ),
+                  ),
+                  child: Padding(
+                    padding: const EdgeInsets.symmetric(
+                        vertical: 6.0, horizontal: 3),
+                    child: InkWell(
+                      onTap: () {
+                        _showModal();
+                      },
+                      child: const Icon(Icons.sort_rounded,
+                          size: 24, color: AppColors.darkGrey),
+                    ),
+                  ),
+                ),
+              ],
+            ),
+            const ListProducts(),
             const SizedBox(
               height: 11,
             ),
             const Divider(),
-            totalResult(),
+            const TotalResult(),
           ],
         ),
       ),
     );
   }
 
-// Строка с фильтром и вызов ModalBottomSheet
-  Widget rowWithFilter(BuildContext context) {
-    return Row(
-      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-      children: [
-        const Text(
-          AppStrings.rowList,
-          style: AppTypography.fontForTitle,
+  void _showModal() {
+    showModalBottomSheet(
+        isScrollControlled: true,
+        shape: const RoundedRectangleBorder(
+          borderRadius: BorderRadius.vertical(top: Radius.circular(24.0)),
         ),
-        Container(
-          width: 32,
-          height: 32,
-          decoration: const BoxDecoration(
-            color: AppColors.grey,
-            borderRadius: BorderRadius.all(
-              Radius.circular(6),
-            ),
-          ),
-          child: Padding(
-            padding: const EdgeInsets.symmetric(vertical: 6.0, horizontal: 3),
-            child: InkWell(
-              onTap: () {
-                showModalBottomSheet(
-                    isScrollControlled: true,
-                    shape: const RoundedRectangleBorder(
-                      borderRadius:
-                          BorderRadius.vertical(top: Radius.circular(24.0)),
-                    ),
-                    backgroundColor: Colors.white,
-                    context: context,
-                    builder: (context) {
-                      return const ModalBottomSheet();
-                    }).whenComplete(() {
-                  setState(() {});
-                });
-              },
-              child: const Icon(Icons.sort_rounded,
-                  size: 24, color: AppColors.darkGrey),
-            ),
-          ),
-        ),
-      ],
-    );
+        backgroundColor: Colors.white,
+        context: context,
+        builder: (context) {
+          return const ModalBottomSheet();
+        }).whenComplete(() {
+      setState(() {});
+    });
   }
+}
 
 // Список продуктов
-  Widget listProducts(BuildContext context) {
+class ListProducts extends StatelessWidget {
+  const ListProducts({super.key});
+
+  @override
+  Widget build(BuildContext context) {
     Map<String, List<ProductEntity>> groupItemsByCategory(
         List<ProductEntity> items) {
       return groupBy<ProductEntity, String>(
@@ -277,8 +269,8 @@ class _PersonalScreenState extends State<PersonalScreen> {
 
     return Expanded(
       child: _sortList != SortList.sortType &&
-              _sortList != SortList.sortTypeReverced
-          ? listBuilder(sortedList)
+              _sortList != SortList.sortTypeReversed
+          ? ListBuilder(sortedList)
           : ListView.separated(
               physics: const ScrollPhysics(),
               itemCount: groupedItems.length,
@@ -299,7 +291,7 @@ class _PersonalScreenState extends State<PersonalScreen> {
                       children: [
                         Text(category.toString(),
                             style: AppTypography.fontTitleCategory),
-                        listBuilder(itemsInCategory),
+                        ListBuilder(itemsInCategory),
                       ],
                     ),
                   ),
@@ -309,185 +301,198 @@ class _PersonalScreenState extends State<PersonalScreen> {
   }
 }
 
-Widget listBuilder(List<ProductEntity> list) {
-  return ListView.builder(
-    physics: const ScrollPhysics(),
-    itemCount: list.length,
-    shrinkWrap: true,
-    itemBuilder: (
-      BuildContext context,
-      int index,
-    ) {
-      ProductEntity item = list[index];
-      final price = (item.price / 100).ceil();
-      final amount = item.amount.value;
-      final amountToPrint =
-          (amount / 1000).toString().replaceAll(RegExp(r'.0'), '');
-      return Padding(
-        padding: const EdgeInsets.only(top: 10.0, bottom: 10.0, right: 30.0),
-        child: Row(
-          mainAxisSize: MainAxisSize.max,
-          children: [
-            ClipRRect(
-              borderRadius: BorderRadius.circular(8.0),
-              child: Image.network(
-                height: 68,
-                width: 68,
-                item.imageUrl,
-                fit: BoxFit.cover,
-                loadingBuilder: (BuildContext context, Widget image,
-                    ImageChunkEvent? loadingProgress) {
-                  if (loadingProgress == null) return image;
-                  return SizedBox(
-                    height: 68,
-                    width: 68,
-                    child: Center(
-                      child: CircularProgressIndicator(
-                        value: loadingProgress.expectedTotalBytes != null
-                            ? loadingProgress.cumulativeBytesLoaded /
-                                loadingProgress.expectedTotalBytes!
-                            : null,
-                      ),
-                    ),
-                  );
-                },
-                errorBuilder: (_, __, ___) => Container(
-                  width: 68,
+class ListBuilder extends StatelessWidget {
+  const ListBuilder(
+    this.list, {
+    super.key,
+  });
+  final List<ProductEntity> list;
+  @override
+  Widget build(BuildContext context) {
+    return ListView.builder(
+      physics: const ScrollPhysics(),
+      itemCount: list.length,
+      shrinkWrap: true,
+      itemBuilder: (
+        BuildContext context,
+        int index,
+      ) {
+        ProductEntity item = list[index];
+        final price = (item.price / 100).ceil();
+        final amount = item.amount.value;
+        final amountToPrint =
+            (amount / 1000).toString().replaceAll(RegExp(r'.0'), '');
+        return Padding(
+          padding: const EdgeInsets.only(top: 10.0, bottom: 10.0, right: 30.0),
+          child: Row(
+            mainAxisSize: MainAxisSize.max,
+            children: [
+              ClipRRect(
+                borderRadius: BorderRadius.circular(8.0),
+                child: Image.network(
                   height: 68,
-                  decoration: BoxDecoration(
-                    color: AppColors.grey,
-                    borderRadius: BorderRadius.circular(8),
-                  ),
-                  child: Image.asset(
-                    AppAssets.withoutPicture,
-                    height: 24,
+                  width: 68,
+                  item.imageUrl,
+                  fit: BoxFit.cover,
+                  loadingBuilder: (BuildContext context, Widget image,
+                      ImageChunkEvent? loadingProgress) {
+                    if (loadingProgress == null) return image;
+                    return SizedBox(
+                      height: 68,
+                      width: 68,
+                      child: Center(
+                        child: CircularProgressIndicator(
+                          value: loadingProgress.expectedTotalBytes != null
+                              ? loadingProgress.cumulativeBytesLoaded /
+                                  loadingProgress.expectedTotalBytes!
+                              : null,
+                        ),
+                      ),
+                    );
+                  },
+                  errorBuilder: (_, __, ___) => Container(
+                    width: 68,
+                    height: 68,
+                    decoration: BoxDecoration(
+                      color: AppColors.grey,
+                      borderRadius: BorderRadius.circular(8),
+                    ),
+                    child: Image.asset(
+                      AppAssets.withoutPicture,
+                      height: 24,
+                    ),
                   ),
                 ),
               ),
-            ),
-            const SizedBox(
-              width: 20,
-            ),
-            Expanded(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(item.title, style: AppTypography.fontForListProduct),
-                  const SizedBox(
-                    height: 30,
-                  ),
-                  Row(
-                    children: [
-                      Text(
-                          item.amount is Grams
-                              ? '$amountToPrint кг'
-                              : '$amount шт',
-                          style: AppTypography.fontForListProduct),
-                      const Spacer(),
-                      item.sale == 0
-                          ? Text('$price' ' руб',
-                              style: AppTypography.fontForListProduct
-                                  .copyWith(fontWeight: FontWeight.w700))
-                          : Row(
-                              children: [
-                                Text('$price' ' руб',
-                                    style: AppTypography.fontForListProduct
-                                        .copyWith(
-                                            color: AppColors.lightGrey,
-                                            decoration:
-                                                TextDecoration.lineThrough,
-                                            decorationColor:
-                                                AppColors.lightGrey,
-                                            fontWeight: FontWeight.bold)),
-                                const SizedBox(
-                                  width: 40,
-                                ),
-                                Text(
-                                    '${((item.sale * price) / 100).ceil()}'
-                                    ' руб',
-                                    style: AppTypography.fontForListProduct
-                                        .copyWith(
-                                            color: AppColors.red,
-                                            fontWeight: FontWeight.bold)),
-                              ],
-                            ),
-                    ],
-                  ),
-                ],
+              const SizedBox(
+                width: 20,
               ),
-            )
-          ],
-        ),
-      );
-    },
-  );
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(item.title, style: AppTypography.fontForListProduct),
+                    const SizedBox(
+                      height: 30,
+                    ),
+                    Row(
+                      children: [
+                        Text(
+                            item.amount is Grams
+                                ? '$amountToPrint кг'
+                                : '$amount шт',
+                            style: AppTypography.fontForListProduct),
+                        const Spacer(),
+                        item.sale == 0
+                            ? Text('$price' ' руб',
+                                style: AppTypography.fontForListProduct
+                                    .copyWith(fontWeight: FontWeight.w700))
+                            : Row(
+                                children: [
+                                  Text('$price' ' руб',
+                                      style: AppTypography.fontForListProduct
+                                          .copyWith(
+                                              color: AppColors.lightGrey,
+                                              decoration:
+                                                  TextDecoration.lineThrough,
+                                              decorationColor:
+                                                  AppColors.lightGrey,
+                                              fontWeight: FontWeight.bold)),
+                                  const SizedBox(
+                                    width: 40,
+                                  ),
+                                  Text(
+                                      '${((item.sale * price) / 100).ceil()}'
+                                      ' руб',
+                                      style: AppTypography.fontForListProduct
+                                          .copyWith(
+                                              color: AppColors.red,
+                                              fontWeight: FontWeight.bold)),
+                                ],
+                              ),
+                      ],
+                    ),
+                  ],
+                ),
+              )
+            ],
+          ),
+        );
+      },
+    );
+  }
 }
 
 // Итоговые строки
-Widget totalResult() {
-  int sumCosts = 0;
-  dataForStudents.forEach((e) => sumCosts += (e.price / 100).ceil());
-  int sumSale = 0;
-  dataForStudents
-      .forEach((e) => sumSale += ((e.sale * e.price) / 10000).ceil());
 
-  return Column(
-    crossAxisAlignment: CrossAxisAlignment.start,
-    children: [
-      const Text(
-        textDirection: TextDirection.ltr,
-        AppStrings.resultTitle,
-        style: AppTypography.fontForResult,
-      ),
-      const SizedBox(
-        height: 8,
-      ),
-      Row(
-        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-        children: [
-          Text('${dataForStudents.length} товаров',
-              style: AppTypography.fontForListProduct),
-          Text(
-            '$sumCosts руб',
-            style: AppTypography.fontForListProduct
-                .copyWith(fontWeight: FontWeight.w700),
-          ),
-        ],
-      ),
-      const SizedBox(
-        height: 11,
-      ),
-      Row(
-        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-        children: [
-          Text(
-              '${AppStrings.resultSale} ${(sumSale * 100 / sumCosts).ceil()} %',
-              style: AppTypography.fontForListProduct),
-          Text(
-            '$sumSale руб',
-            style: AppTypography.fontForListProduct
-                .copyWith(fontWeight: FontWeight.w700),
-          ),
-        ],
-      ),
-      const SizedBox(
-        height: 11,
-      ),
-      Row(
-        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-        children: [
-          Text(
-            AppStrings.resultTotSumTitle,
-            style: AppTypography.fontForResult.copyWith(fontSize: 16),
-          ),
-          Text(
-            '${(sumCosts - sumSale).round()} руб',
-            style: AppTypography.fontForResult.copyWith(fontSize: 16),
-          ),
-        ],
-      ),
-    ],
-  );
+class TotalResult extends StatelessWidget {
+  const TotalResult({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    int sumCosts = 0;
+    dataForStudents.forEach((e) => sumCosts += (e.price / 100).ceil());
+    int sumSale = 0;
+    dataForStudents
+        .forEach((e) => sumSale += ((e.sale * e.price) / 10000).ceil());
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        const Text(
+          textDirection: TextDirection.ltr,
+          AppStrings.resultTitle,
+          style: AppTypography.fontForResult,
+        ),
+        const SizedBox(
+          height: 8,
+        ),
+        Row(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          children: [
+            Text('${dataForStudents.length} товаров',
+                style: AppTypography.fontForListProduct),
+            Text(
+              '$sumCosts руб',
+              style: AppTypography.fontForListProduct
+                  .copyWith(fontWeight: FontWeight.w700),
+            ),
+          ],
+        ),
+        const SizedBox(
+          height: 11,
+        ),
+        Row(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          children: [
+            Text(
+                '${AppStrings.resultSale} ${(sumSale * 100 / sumCosts).ceil()} %',
+                style: AppTypography.fontForListProduct),
+            Text(
+              '$sumSale руб',
+              style: AppTypography.fontForListProduct
+                  .copyWith(fontWeight: FontWeight.w700),
+            ),
+          ],
+        ),
+        const SizedBox(
+          height: 11,
+        ),
+        Row(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          children: [
+            Text(
+              AppStrings.resultTotSumTitle,
+              style: AppTypography.fontForResult.copyWith(fontSize: 16),
+            ),
+            Text(
+              '${(sumCosts - sumSale).round()} руб',
+              style: AppTypography.fontForResult.copyWith(fontSize: 16),
+            ),
+          ],
+        ),
+      ],
+    );
+  }
 }
 
 // ModalBottomSheet отдельным виджетом
@@ -508,19 +513,19 @@ class _ModalBottomSheetState extends State<ModalBottomSheet> {
       if (_sortList == SortList.sortTitle) {
         sortedList.sort((a, b) => a.title.compareTo(b.title));
       }
-      if (_sortList == SortList.sortTitleReverced) {
+      if (_sortList == SortList.sortTitleReversed) {
         sortedList.sort((a, b) => b.title.compareTo(a.title));
       }
       if (_sortList == SortList.sortPrice) {
         sortedList.sort((a, b) => a.price.compareTo(b.price));
       }
-      if (_sortList == SortList.sortPriceReverced) {
+      if (_sortList == SortList.sortPriceReversed) {
         sortedList.sort((a, b) => b.price.compareTo(a.price));
       }
       if (_sortList == SortList.sortType) {
         sortedList.sort((a, b) => a.category.name.compareTo(b.category.name));
       }
-      if (_sortList == SortList.sortTypeReverced) {
+      if (_sortList == SortList.sortTypeReversed) {
         sortedList.sort((a, b) => b.category.name.compareTo(a.category.name));
       }
     }
@@ -593,7 +598,7 @@ class _ModalBottomSheetState extends State<ModalBottomSheet> {
                   overlayColor: MaterialStateColor.resolveWith(
                       (states) => AppColors.forSelectedGreen),
                   title: const Text(AppStrings.titleFilterFromZToA),
-                  value: SortList.sortTitleReverced,
+                  value: SortList.sortTitleReversed,
                   groupValue: _sortList,
                   onChanged: (SortList? value) {
                     setState(() {
@@ -628,7 +633,7 @@ class _ModalBottomSheetState extends State<ModalBottomSheet> {
                   overlayColor: MaterialStateColor.resolveWith(
                       (states) => AppColors.forSelectedGreen),
                   title: const Text(AppStrings.titleFilterPriceRevert),
-                  value: SortList.sortPriceReverced,
+                  value: SortList.sortPriceReversed,
                   groupValue: _sortList,
                   onChanged: (SortList? value) {
                     setState(() {
@@ -663,7 +668,7 @@ class _ModalBottomSheetState extends State<ModalBottomSheet> {
                   overlayColor: MaterialStateColor.resolveWith(
                       (states) => AppColors.forSelectedGreen),
                   title: const Text(AppStrings.titleFilterTypeRevert),
-                  value: SortList.sortTypeReverced,
+                  value: SortList.sortTypeReversed,
                   groupValue: _sortList,
                   onChanged: (SortList? value) {
                     setState(() {
