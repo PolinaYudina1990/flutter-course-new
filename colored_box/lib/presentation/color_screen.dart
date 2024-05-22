@@ -1,4 +1,5 @@
 import 'package:colored_box/assets/color_strings.dart';
+import 'package:colored_box/assets/colors.dart';
 import 'package:colored_box/assets/fonts.dart';
 import 'package:colored_box/domain/entity/color_entity.dart';
 import 'package:colored_box/main.dart';
@@ -121,6 +122,30 @@ class ColorWidget extends StatelessWidget {
     Color rgbColor = hexToColor(data.value!);
 
     return InkWell(
+      onLongPress: () async {
+        onTapCopy(data);
+        showDialog(
+          barrierColor: const Color(0x01000000),
+          context: context,
+          barrierDismissible: true,
+          builder: (BuildContext context) {
+            return AlertDialog(
+              shape: const RoundedRectangleBorder(
+                  borderRadius: BorderRadius.all(Radius.circular(16))),
+              backgroundColor: AppColors.alertDialogColor.withOpacity(0.8),
+              alignment: Alignment.bottomCenter,
+              content: Text(
+                textAlign: TextAlign.center,
+                AppStrings.allertDialog,
+                style: AppTypography.fontDetailedScreen
+                    .copyWith(color: Colors.white),
+              ),
+            );
+          },
+        );
+        await Future.delayed(const Duration(seconds: 1));
+        Navigator.of(context, rootNavigator: true).pop();
+      },
       onTap: () {
         Navigator.of(context).push(
           MaterialPageRoute(
