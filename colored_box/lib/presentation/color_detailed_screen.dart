@@ -28,7 +28,7 @@ class _DetailedColorScreenState extends State<DetailedColorScreen> {
         preferredSize: Size.fromHeight(MediaQuery.of(context).size.height / 2),
         child: AppBar(
           flexibleSpace: Container(
-            decoration: BoxDecoration(color: hexToColor(widget.data.value!)),
+            decoration: BoxDecoration(color: hexToColor(widget.data.value)),
           ),
         ),
       ),
@@ -53,7 +53,7 @@ class _DetailedColorScreenState extends State<DetailedColorScreen> {
               },
               child: MyBoxShadow(
                 title: AppStrings.titleDetailedScreenShadowBox,
-                textValue: widget.data.value!.replaceAll("#", ""),
+                textValue: widget.data.value.replaceAll("#", ""),
                 iconNeed: true,
               ),
             ),
@@ -65,17 +65,17 @@ class _DetailedColorScreenState extends State<DetailedColorScreen> {
               children: [
                 MyBoxShadow(
                   title: RgbTitle.red.name,
-                  textValue: hexToColor(widget.data.value!).red.toString(),
+                  textValue: hexToColor(widget.data.value).red.toString(),
                   iconNeed: false,
                 ),
                 MyBoxShadow(
                   title: RgbTitle.Green.name,
-                  textValue: hexToColor(widget.data.value!).green.toString(),
+                  textValue: hexToColor(widget.data.value).green.toString(),
                   iconNeed: false,
                 ),
                 MyBoxShadow(
                   title: RgbTitle.Blue.name,
-                  textValue: hexToColor(widget.data.value!).blue.toString(),
+                  textValue: hexToColor(widget.data.value).blue.toString(),
                   iconNeed: false,
                 ),
               ],
@@ -120,7 +120,7 @@ class MyBoxShadow extends StatelessWidget {
             const SizedBox(
               width: 16,
             ),
-            if (onTapValue == true && iconNeed == true)
+            if (onTapValue && iconNeed)
               Row(
                 children: [
                   Text(textValue, style: AppTypography.fontDetailedScreen),

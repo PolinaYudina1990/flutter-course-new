@@ -45,17 +45,17 @@ class _ColorScreenState extends State<ColorScreen> {
       body: FutureBuilder<List<ColorEntity>>(
         future: _data,
         builder: (_, snapshot) {
-          if (snapshot.connectionState == ConnectionState.done) {
-            if (snapshot.hasError) {
-              return const ErrorWdget();
-            } else if (snapshot.hasData) {
-              final data = snapshot.data!;
-              return ContentWidget(data: data);
-            } else {
-              return const EmptyWidget();
-            }
+          if (snapshot.connectionState != ConnectionState.done) {
+            return const LoadingWidget();
           }
-          return const LoadingWidget();
+          if (snapshot.hasError) {
+            return const ErrorWdget();
+          }
+          if (!snapshot.hasData) {
+            return const EmptyWidget();
+          }
+          final data = snapshot.data!;
+          return ContentWidget(data: data);
         },
       ),
     );
@@ -122,35 +122,16 @@ class ColorWidget extends StatelessWidget {
     Color rgbColor = hexToColor(data.value!);
 
     return InkWell(
-      onLongPress: () async {
-        onTapCopy(data);
-        showDialog(
-          barrierColor: const Color(0x01000000),
-          context: context,
-          barrierDismissible: true,
-          builder: (BuildContext context) {
-            return AlertDialog(
-              shape: const RoundedRectangleBorder(
-                  borderRadius: BorderRadius.all(Radius.circular(16))),
-              backgroundColor: AppColors.alertDialogColor.withOpacity(0.8),
-              alignment: Alignment.bottomCenter,
-              content: Text(
-                textAlign: TextAlign.center,
-                AppStrings.allertDialog,
-                style: AppTypography.fontDetailedScreen
-                    .copyWith(color: Colors.white),
-              ),
-            );
-          },
+      onLongPress: () {
+        onLongPress(
+          context,
+          data,
         );
-        await Future.delayed(const Duration(seconds: 1));
-        Navigator.of(context, rootNavigator: true).pop();
       },
       onTap: () {
-        Navigator.of(context).push(
-          MaterialPageRoute(
-            builder: (context) => DetailedColorScreen(data: data),
-          ),
+        onTapFunction(
+          context,
+          data,
         );
       },
       child: Column(
@@ -168,7 +149,7 @@ class ColorWidget extends StatelessWidget {
             style: AppTypography.fontColorWidgetText,
           ),
           Text(
-            data.value!,
+            data.value,
             style: AppTypography.fontColorWidgetText,
           ),
         ],
@@ -179,4 +160,36 @@ class ColorWidget extends StatelessWidget {
 
 Color hexToColor(String hexString, {String alphaChannel = 'FF'}) {
   return Color(int.parse(hexString.replaceFirst('#', '0x$alphaChannel')));
+}
+
+Future<void> onLongPress(BuildContext context, ColorEntity data) async {
+  onTapCopy(data);
+  showDialog(
+    barrierColor: const Color(0x01000000),
+    context: context,
+    barrierDismissible: true,
+    builder: (BuildContext context) {
+      return AlertDialog(
+        shape: const RoundedRectangleBorder(
+            borderRadius: BorderRadius.all(Radius.circular(16))),
+        backgroundColor: AppColors.alertDialogColor.withOpacity(0.8),
+        alignment: Alignment.bottomCenter,
+        content: Text(
+          textAlign: TextAlign.center,
+          AppStrings.allertDialog,
+          style: AppTypography.fontDetailedScreen.copyWith(color: Colors.white),
+        ),
+      );
+    },
+  );
+  await Future.delayed(const Duration(seconds: 1));
+  Navigator.of(context, rootNavigator: true).pop();
+}
+
+void onTapFunction(BuildContext context, ColorEntity data) {
+  Navigator.of(context).push(
+    MaterialPageRoute(
+      builder: (context) => DetailedColorScreen(data: data),
+    ),
+  );
 }
