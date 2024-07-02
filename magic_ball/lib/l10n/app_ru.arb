@@ -1,0 +1,22 @@
+{
+    "magicBallTitlePart1": "Нажмите на шар",
+    "@magicBallTitlePart1": {
+      "description": "magic ball screen"
+    },
+    "magicBallTitlePart2": "или потрясите телефон",
+    "@magicBallTitlePart2": {
+      "description": "magic ball screen"
+    },
+    "magicBallErrorMessage": "Error. Try again",
+    "@magicBallErrorMessage": {
+      "description": "error ball screen"
+    },
+    "magicBallBackImg": "assets/images/magic_ball.png",
+    "@magicBallBackImg": {
+      "description": "assets"
+    },
+    "magicBallStarsImg": "assets/images/background.png",
+    "@magicBallStarsImg": {
+      "description": "assets"
+    }
+  }

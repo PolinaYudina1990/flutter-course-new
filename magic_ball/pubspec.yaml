@@ -1,0 +1,41 @@
+name: change_theme
+description: "A new Flutter project."
+publish_to: 'none'
+version: 0.1.0
+
+environment:
+  sdk: '>=3.3.2 <4.0.0'
+
+dependencies:
+  flutter:
+    sdk: flutter
+  flutter_localizations:
+    sdk: flutter
+  flutter_svg: ^2.0.10+1
+  intl: ^0.18.1
+  shared_preferences: ^2.2.3
+  provider: ^6.1.2
+  shake: ^2.2.0
+  dots_indicator: ^3.0.0
+  build_runner: ^2.4.9
+  json_serializable: ^6.8.0
+  dio: ^5.4.3+1
+
+dev_dependencies:
+  flutter_test:
+    sdk: flutter
+  flutter_lints: ^3.0.0
+
+flutter:
+  generate: true
+  uses-material-design: true
+
+  # fonts:
+  #   - family: SF
+  #     fonts:
+  #       - asset: assets/fonts/SF-Pro-Display-Bold.otf
+  #       - asset: assets/fonts/SF-Pro-Display-Regular.otf
+
+  assets:
+    - assets/
+    - assets/images/
