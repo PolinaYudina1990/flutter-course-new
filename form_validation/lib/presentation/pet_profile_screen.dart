@@ -13,6 +13,7 @@ import 'package:form_validation/utils/validators.dart';
 import 'package:intl/intl.dart';
 
 bool _submitted = false;
+bool isLoading = false;
 
 class PetProfile extends StatefulWidget {
   const PetProfile({super.key});
@@ -37,24 +38,29 @@ class _PetProfileState extends State<PetProfile> {
     Vaccine.malaria: TextEditingController()
   };
 
-  void _submit() {
+  void updateForm() {
     if (formKey.currentState!.validate()) {
       setState(() {
         _submitted = true;
         formKey.currentState!.save();
       });
     }
+  }
+
+  void _submit() async {
+    isLoading = true;
+    updateForm();
     final PetData formData = PetData(
         nameController.text,
         DateTime.parse(dateController.text),
         int.parse(weitController.text),
         emailController.text,
         _checkboxValue.value);
-    Timer.periodic(const Duration(seconds: 2), (timer) {
-      setState(() {
-        _submitted = false;
-      });
+    await Future.delayed(const Duration(seconds: 5));
+    setState(() {
+      isLoading = false;
     });
+    // isLoading = false;
   }
 
   @override
@@ -79,7 +85,7 @@ class _PetProfileState extends State<PetProfile> {
           child: Form(
             key: formKey,
             onChanged: () {
-              _submit();
+              updateForm();
             },
             child: SingleChildScrollView(
               child: Column(
@@ -99,9 +105,17 @@ class _PetProfileState extends State<PetProfile> {
                   ),
                   ButtonWidget(
                     enabled: _submitted,
-                    onPressed: () {
-                      _submit();
+                    onPressed: () async {
+                      setState(() {
+                        isLoading = true;
+                        _submitted = false;
+                      });
+                      await Future.delayed(const Duration(seconds: 2));
+                      setState(() {
+                        isLoading = false;
+                      });
                     },
+                    isLoading: isLoading,
                   ),
                 ],
               ),
@@ -147,12 +161,14 @@ class _PetPasportState extends State<PetPasport> {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           ContainerTextFormField(
+            enabled: isLoading ? false : true,
             keyboardType: TextInputType.name,
             validators: nameValidator,
             labelText: AppStrings.pasportPageName,
             controller: widget.nameController,
           ),
           ContainerTextFormField(
+              enabled: isLoading ? false : true,
               keyboardType: TextInputType.datetime,
               validators: dateValidator,
               labelText: AppStrings.pasportPageDate,
@@ -167,12 +183,14 @@ class _PetPasportState extends State<PetPasport> {
                 }
               }),
           ContainerTextFormField(
+            enabled: isLoading ? false : true,
             keyboardType: TextInputType.number,
             validators: weightValidator,
             labelText: AppStrings.pasportWeight,
             controller: widget.weitController,
           ),
           ContainerTextFormField(
+            enabled: isLoading ? false : true,
             keyboardType: TextInputType.emailAddress,
             validators: emailValidator,
             labelText: AppStrings.pasportPageEmail,
@@ -190,30 +208,34 @@ class _PetPasportState extends State<PetPasport> {
                   ValueListenableBuilder<List<Vaccine>>(
                     valueListenable: widget.checkboxValue,
                     builder: (context, state, child) {
-                      return CheckboxWidget(
-                        title: vaccine.value,
-                        submited: widget.submited,
-                        value: state.contains(vaccine),
-                        onChanged: (value) {
-                          if (value!) {
-                            widget.checkboxValue.value = List.from(state)
-                              ..add(vaccine);
-                          } else {
-                            widget.checkboxValue.value = List.from(state)
-                              ..remove(vaccine);
-                          }
-                        },
-                        onTapTextFieldCheckBox: () async {
-                          DateTime? pickedDate = await selectDate(
-                            context: context,
-                          );
-                          if (pickedDate != null) {
-                            widget.controllers[vaccine]!.text =
-                                DateFormat('dd.MM.yyyy').format(pickedDate);
-                          }
-                        },
-                        controllerTextFieldCheckBox:
-                            widget.controllers[vaccine],
+                      return Opacity(
+                        opacity: isLoading ? 0.5 : 1,
+                        child: CheckboxWidget(
+                          enabled: isLoading ? false : true,
+                          title: vaccine.value,
+                          submited: widget.submited,
+                          value: state.contains(vaccine),
+                          onChanged: (value) {
+                            if (value!) {
+                              widget.checkboxValue.value = List.from(state)
+                                ..add(vaccine);
+                            } else {
+                              widget.checkboxValue.value = List.from(state)
+                                ..remove(vaccine);
+                            }
+                          },
+                          onTapTextFieldCheckBox: () async {
+                            DateTime? pickedDate = await selectDate(
+                              context: context,
+                            );
+                            if (pickedDate != null) {
+                              widget.controllers[vaccine]!.text =
+                                  DateFormat('dd.MM.yyyy').format(pickedDate);
+                            }
+                          },
+                          controllerTextFieldCheckBox:
+                              widget.controllers[vaccine],
+                        ),
                       );
                     },
                   ),

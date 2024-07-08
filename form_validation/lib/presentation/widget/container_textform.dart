@@ -6,6 +6,7 @@ class ContainerTextFormField extends StatelessWidget {
   final TextEditingController? controller;
   final Function(String)? validators;
   final String labelText;
+  final bool enabled;
   final TextInputType? keyboardType;
   final VoidCallback? onTap;
   const ContainerTextFormField({
@@ -15,6 +16,7 @@ class ContainerTextFormField extends StatelessWidget {
     required this.controller,
     this.keyboardType,
     this.onTap,
+    required this.enabled,
   });
 
   @override
@@ -22,6 +24,7 @@ class ContainerTextFormField extends StatelessWidget {
     return Padding(
       padding: const EdgeInsets.symmetric(vertical: 10),
       child: TextFormField(
+        enabled: enabled,
         controller: controller,
         onTap: onTap,
         autovalidateMode: AutovalidateMode.onUserInteraction,

@@ -8,6 +8,7 @@ class CheckboxWidget extends StatelessWidget {
   final bool submited;
   final String title;
   final ValueChanged<bool?>? onChanged;
+  final bool enabled;
   final VoidCallback? onTapTextFieldCheckBox;
   final TextEditingController? controllerTextFieldCheckBox;
   const CheckboxWidget(
@@ -17,7 +18,8 @@ class CheckboxWidget extends StatelessWidget {
       this.onChanged,
       this.onTapTextFieldCheckBox,
       this.controllerTextFieldCheckBox,
-      required this.submited});
+      required this.submited,
+      required this.enabled});
 
   @override
   Widget build(BuildContext context) {
@@ -64,6 +66,7 @@ class CheckboxWidget extends StatelessWidget {
         ),
         if (value == true)
           ContainerTextFormField(
+            enabled: enabled,
             labelText: AppStrings.pasportPageSubtitleVaccine,
             onTap: onTapTextFieldCheckBox,
             controller: controllerTextFieldCheckBox,

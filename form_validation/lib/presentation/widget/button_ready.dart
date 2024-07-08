@@ -5,11 +5,13 @@ import 'package:form_validation/utils/fonts.dart';
 class ButtonWidget extends StatelessWidget {
   final VoidCallback? onPressed;
   final bool enabled;
+  final bool isLoading;
 
   const ButtonWidget({
     super.key,
     required this.onPressed,
     this.enabled = false,
+    required this.isLoading,
   });
 
   @override
@@ -26,7 +28,7 @@ class ButtonWidget extends StatelessWidget {
           minimumSize: const Size(double.infinity, 56),
         ),
         onPressed: onPressed,
-        child: enabled
+        child: isLoading
             ? const CircularProgressIndicator()
             : Text(
                 'Отправить',
