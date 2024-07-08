@@ -1,5 +1,3 @@
-// ignore_for_file: prefer_const_constructors
-
 import 'dart:async';
 import 'package:change_theme/data/api/magic_ball_api.dart';
 import 'package:change_theme/data/api/model/model_mb.dart';
@@ -8,11 +6,12 @@ import 'package:dots_indicator/dots_indicator.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 
-final magicBallApi = MagicBallApi();
+// final magicBallApi = MagicBallApi();
 final dio = Dio();
 
 class StarsScreen extends StatefulWidget {
-  const StarsScreen({super.key});
+  final Future<MagicBallData>? data;
+  const StarsScreen({super.key, required this.data});
 
   @override
   State<StarsScreen> createState() => _StarsScreenState();
@@ -20,38 +19,13 @@ class StarsScreen extends StatefulWidget {
 
 class _StarsScreenState extends State<StarsScreen> {
   @override
-  void didChangeDependencies() {
-    super.didChangeDependencies();
-    WidgetsBinding.instance.addPostFrameCallback((_) {
-      setState(() {
-        loaded = true;
-      });
-    });
-  }
-
-  Future<MagicBallData>? _data;
-  late bool loaded;
-  Future<void> _loadReply() async {
-    _data = magicBallApi.getReplies();
-  }
-
-  @override
-  void initState() {
-    super.initState();
-    loaded = false;
-    _loadReply();
-  }
-
-  @override
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: Colors.black,
-      body: Stack(
-        children: [
-          AnimatedOpacity(
-            opacity: loaded ? 0.7 : 1.0,
-            duration: const Duration(seconds: 3),
-            child: Container(
+      body: SafeArea(
+        child: Stack(
+          children: [
+            Container(
               decoration: BoxDecoration(
                 image: DecorationImage(
                   image: AssetImage(
@@ -61,38 +35,32 @@ class _StarsScreenState extends State<StarsScreen> {
                 ),
               ),
             ),
-          ),
-          FutureBuilder<MagicBallData>(
-            future: _data,
-            builder: (_, snapshot) {
-              if (snapshot.data == null) {
-                return const LoadingWidget();
-              }
-              if (snapshot.hasError || !snapshot.hasData) {
-                return AnimatedSwitcher(
-                    duration: const Duration(milliseconds: 500),
-                    transitionBuilder:
-                        (Widget child, Animation<double> animation) {
-                      return ScaleTransition(scale: animation, child: child);
-                    },
-                    child: const ErrorWidget());
-              }
-              final data = snapshot.data!;
-              return AnimatedSwitcher(
-                duration: const Duration(milliseconds: 500),
-                transitionBuilder: (Widget child, Animation<double> animation) {
-                  return ScaleTransition(scale: animation, child: child);
-                },
-                child: InkWell(
+            FutureBuilder<MagicBallData>(
+              future: widget.data,
+              builder: (_, snapshot) {
+                if (snapshot.data == null) {
+                  return const LoadingWidget();
+                }
+                if (snapshot.hasError || !snapshot.hasData) {
+                  return AnimatedSwitcher(
+                      duration: const Duration(milliseconds: 300),
+                      transitionBuilder:
+                          (Widget child, Animation<double> animation) {
+                        return FadeTransition(opacity: animation, child: child);
+                      },
+                      child: const ErrorWidget());
+                }
+                final data = snapshot.data!;
+                return InkWell(
                   onTap: () {
                     Navigator.pop(context);
                   },
                   child: ReplyWidget(data: data),
-                ),
-              );
-            },
-          )
-        ],
+                );
+              },
+            )
+          ],
+        ),
       ),
     );
   }
@@ -183,7 +151,7 @@ class ErrorWidget extends StatelessWidget {
         child: Text(
           textAlign: TextAlign.center,
           AppLocalizations.of(context)!.magicBallErrorMessage,
-          style: TextStyle(fontSize: 56, color: Colors.white),
+          style: const TextStyle(fontSize: 56, color: Colors.white),
         ),
       ),
     );
