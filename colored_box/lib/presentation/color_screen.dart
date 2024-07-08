@@ -119,7 +119,7 @@ class ColorWidget extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    Color rgbColor = hexToColor(data.value!);
+    Color rgbColor = hexToColor(data.value);
 
     return InkWell(
       onLongPress: () {
